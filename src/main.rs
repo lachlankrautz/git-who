@@ -1,25 +1,45 @@
 extern crate chrono;
 
+use std::fmt;
 use std::process::Command;
 use std::str;
-use chrono::datetime::DateTime;
+use chrono::date::Date;
+use chrono::Local;
+use chrono::offset::TimeZone;
 
-struct Repo {
+struct Branch {
     user: String,
-    date: DateTime,
+    date: Date<Local>,
 }
 
-fn parse_repo(line: String) -> Option<Repo> {
+impl fmt::Display for Branch {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "user: {}\ndate: {}", self.user, self.date)
+    }
+}
+
+fn parse_repo(line: String) -> Option<Branch> {
     if line.contains("refs/remotes/origin/") && line != "refs/remotes/origin/HEAD" &&
        line != "refs/remotes/origin/master" {
-        Some(Repo { user: line });
+        Some(Branch {
+            user: line,
+            date: Local.ymd(2016, 2, 1),
+        })
     } else {
-        None;
+        None
     }
 }
 
 fn main() {
 
+    let v = get_git_data();
+
+    for branch in v {
+        println!("branch: {}", branch);
+    }
+}
+
+fn get_git_data() -> Vec<Branch> {
     let output = Command::new("git")
         .arg("for-each-ref")
         .arg("--format=%(authorname),%(refname),%(committerdate)")
@@ -27,17 +47,9 @@ fn main() {
         .expect("failed to execute process");
     let git_output = str::from_utf8(&output.stdout).unwrap();
 
-    let mut v: Vec<Repo> = Vec::new();
+    let mut v: Vec<Branch> = Vec::new();
     for line in git_output.lines() {
-        // match parse_repo(line.to_string()) {
-        // Some(x) => v.push(x),
-        // None => 0,
-        // }
-        //
         parse_repo(line.to_string()).map(|x| v.push(x));
     }
-
-    for repo in v {
-        println!("{}", repo.user);
-    }
+    v
 }
