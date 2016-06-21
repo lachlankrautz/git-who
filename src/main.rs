@@ -3,27 +3,50 @@ extern crate chrono;
 use std::fmt;
 use std::process::Command;
 use std::str;
-use chrono::date::Date;
-use chrono::Local;
-use chrono::offset::TimeZone;
+// use chrono::datetime::DateTime;
+// use chrono::Local;
+// use chrono::offset::TimeZone;
+use chrono::*;
 
 struct Branch {
     user: String,
-    date: Date<Local>,
+    branch: String,
+    date_string: String,
+    date: DateTime<Local>,
 }
 
 impl fmt::Display for Branch {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "user: {}\ndate: {}", self.user, self.date)
+        write!(f,
+               "user: {}\nbranch: {}\ndate string: {}\ndate: {}\n",
+               self.user,
+               self.branch,
+               self.date_string,
+               self.date)
     }
 }
 
 fn parse_repo(line: String) -> Option<Branch> {
     if line.contains("refs/remotes/origin/") && line != "refs/remotes/origin/HEAD" &&
        line != "refs/remotes/origin/master" {
+
+        let mut user = String::new();
+        let mut date = String::new();
+        let mut branch = String::new();
+        for (i, part) in line.split(",").enumerate() {
+            match i {
+                0 => user = part.to_string(),
+                1 => branch = part.to_string(),
+                2 => date = part.to_string(),
+                _ => {}
+            }
+        }
         Some(Branch {
-            user: line,
-            date: Local.ymd(2016, 2, 1),
+            user: user,
+            branch: branch,
+            date_string: date,
+            // date: Local.ymd(2016, 2, 1),
+            date: DateTime<Local>::parse_from_str(date),
         })
     } else {
         None
@@ -35,7 +58,7 @@ fn main() {
     let v = get_git_data();
 
     for branch in v {
-        println!("branch: {}", branch);
+        println!("[branch]\n{}", branch);
     }
 }
 
