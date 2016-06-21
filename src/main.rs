@@ -10,14 +10,12 @@ struct Repo {
 }
 
 fn parse_repo(line: String) -> Option<Repo> {
-    let option: Option<Repo>;
     if line.contains("refs/remotes/origin/") && line != "refs/remotes/origin/HEAD" &&
        line != "refs/remotes/origin/master" {
-        option = Some(Repo { user: line });
+        Some(Repo { user: line });
     } else {
-        option = None;
+        None;
     }
-    option
 }
 
 fn main() {
@@ -31,10 +29,12 @@ fn main() {
 
     let mut v: Vec<Repo> = Vec::new();
     for line in git_output.lines() {
-        match parse_repo(line.to_string()) {
-            Some(x) => v.push(x),
-            None => (),
-        }
+        // match parse_repo(line.to_string()) {
+        // Some(x) => v.push(x),
+        // None => 0,
+        // }
+        //
+        parse_repo(line.to_string()).map(|x| v.push(x));
     }
 
     for repo in v {
