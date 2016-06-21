@@ -11,29 +11,26 @@ use chrono::*;
 struct Branch {
     user: String,
     branch: String,
-    date_string: String,
-    date: DateTime<Local>,
+    date: DateTime<FixedOffset>,
 }
 
 impl fmt::Display for Branch {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-               "user: {}\nbranch: {}\ndate string: {}\ndate: {}\n",
+               "user: {}\nbranch: {}\ndate: {}",
                self.user,
                self.branch,
-               self.date_string,
                self.date)
     }
 }
 
 fn parse_repo(line: String) -> Option<Branch> {
-    if line.contains("refs/remotes/origin/") && line != "refs/remotes/origin/HEAD" &&
-       line != "refs/remotes/origin/master" {
+    if !line.contains("refs/remotes/origin/HEAD") && !line.contains("refs/remotes/origin/master") {
 
         let mut user = String::new();
         let mut date = String::new();
         let mut branch = String::new();
-        for (i, part) in line.split(",").enumerate() {
+        for (i, part) in line.split("^").enumerate() {
             match i {
                 0 => user = part.to_string(),
                 1 => branch = part.to_string(),
@@ -44,9 +41,7 @@ fn parse_repo(line: String) -> Option<Branch> {
         Some(Branch {
             user: user,
             branch: branch,
-            date_string: date,
-            // date: Local.ymd(2016, 2, 1),
-            date: DateTime<Local>::parse_from_str(date),
+            date: DateTime::parse_from_rfc2822(&date).unwrap(),
         })
     } else {
         None
@@ -65,7 +60,9 @@ fn main() {
 fn get_git_data() -> Vec<Branch> {
     let output = Command::new("git")
         .arg("for-each-ref")
-        .arg("--format=%(authorname),%(refname),%(committerdate)")
+        .arg("--sort=-committerdate")
+        .arg("--format=%(authorname)^%(refname)^%(committerdate:rfc2822)")
+        .arg("refs/remotes/origin/")
         .output()
         .expect("failed to execute process");
     let git_output = str::from_utf8(&output.stdout).unwrap();
