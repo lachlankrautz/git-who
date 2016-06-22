@@ -5,3 +5,4 @@ authors = ["Lachlan Krautz <lachlan.krautz@gmail.com>"]
 
 [dependencies]
 chrono = "0.2"
+colored = "1.2"

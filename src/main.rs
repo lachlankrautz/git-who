@@ -1,13 +1,20 @@
 extern crate chrono;
+extern crate colored;
 
 use std::fmt;
 use std::process::Command;
 use std::str;
 use std::iter;
-// use chrono::datetime::DateTime;
-// use chrono::Local;
-// use chrono::offset::TimeZone;
-use chrono::*;
+use colored::Colorize;
+use chrono::datetime::DateTime;
+use chrono::Local;
+use chrono::FixedOffset;
+
+fn main() {
+    let mut v = get_git_data();
+    v.sort();
+    print_git_data(v);
+}
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 struct Branch {
@@ -41,7 +48,7 @@ fn parse_repo(line: String) -> Option<Branch> {
         let mut user = String::new();
         let mut date = String::new();
         let mut branch = String::new();
-        for (i, part) in line.split("^").enumerate() {
+        for (i, part) in line.split("^~^").enumerate() {
             match i {
                 0 => user = part.to_string(),
                 1 => branch = part.to_string().replace("origin/", ""),
@@ -59,12 +66,6 @@ fn parse_repo(line: String) -> Option<Branch> {
     }
 }
 
-fn main() {
-    let mut v = get_git_data();
-    v.sort();
-    print_git_data(v);
-}
-
 fn print_git_data(v: Vec<Branch>) {
     let max = v.iter().fold(0, |max, branch| {
         let len = branch.user.len();
@@ -74,20 +75,38 @@ fn print_git_data(v: Vec<Branch>) {
             max
         }
     });
-    println!("max: {}", max);
+    let now = Local::now();
+
     for branch in v {
-        let padding_count = max - branch.branch.len();
+        let padding_count = max - branch.user.len();
         let padding: String = iter::repeat(" ").take(padding_count).collect();
-        print!("[{}]", branch.date.format("%Y-%m-%d"));
-        print!("{}", branch.branch);
-        println!("{}", padding);
+
+        println!("[{}] {}{} {}",
+                 coloured_date(now, branch.date),
+                 branch.user,
+                 padding,
+                 branch.branch);
+    }
+}
+
+fn coloured_date(now: DateTime<Local>, date: DateTime<FixedOffset>) -> String {
+    let str_date = date.format("%Y-%m-%d").to_string();
+
+    let diff = now - date;
+
+    if diff.num_days() >= 180 {
+        str_date.red().to_string()
+    } else if diff.num_days() >= 90 {
+        str_date.yellow().to_string()
+    } else {
+        str_date.green().to_string()
     }
 }
 
 fn get_git_data() -> Vec<Branch> {
     let output = Command::new("git")
         .arg("for-each-ref")
-        .arg("--format=%(authorname)^%(refname:short)^%(committerdate:rfc2822)")
+        .arg("--format=%(authorname)^~^%(refname:short)^~^%(committerdate:rfc2822)")
         .arg("refs/remotes/origin/")
         .output()
         .expect("failed to execute process");
