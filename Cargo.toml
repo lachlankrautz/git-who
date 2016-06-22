@@ -2,6 +2,13 @@
 name = "git-who"
 version = "0.1.0"
 authors = ["Lachlan Krautz <lachlan.krautz@gmail.com>"]
+description = "Help manage a team's branches by displaying who touched which branch last and which branches are getting old"
+homepage = "https://github.com/lachlankrautz/git-who"
+repository = "https://github.com/lachlankrautz/git-who"
+readme = "README.md"
+keywords = "git remote branch author team manage"
+license = "MIT"
+license-file = "LICENSE"
 
 [dependencies]
 chrono = "0.2"
