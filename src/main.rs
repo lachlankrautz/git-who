@@ -91,12 +91,11 @@ fn print_git_data(v: Vec<Branch>) {
 
 fn coloured_date(now: DateTime<Local>, date: DateTime<FixedOffset>) -> String {
     let str_date = date.format("%Y-%m-%d").to_string();
+    let diff = (now - date).num_days();
 
-    let diff = now - date;
-
-    if diff.num_days() >= 180 {
+    if diff >= 180 {
         str_date.red().to_string()
-    } else if diff.num_days() >= 90 {
+    } else if diff >= 90 {
         str_date.yellow().to_string()
     } else {
         str_date.green().to_string()
