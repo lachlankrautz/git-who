@@ -6,7 +6,7 @@ description = "Help manage a team's branches by displaying who touched which bra
 homepage = "https://github.com/lachlankrautz/git-who"
 repository = "https://github.com/lachlankrautz/git-who"
 readme = "README.md"
-keywords = "git remote branch author team manage"
+keywords = ["git", "remote", "branch", "author", "team", "manage"]
 license = "MIT"
 license-file = "LICENSE"
 
