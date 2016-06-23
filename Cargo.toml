@@ -8,7 +8,6 @@ repository = "https://github.com/lachlankrautz/git-who"
 readme = "README.md"
 keywords = ["git", "remote", "branches", "team", "manage"]
 license = "MIT"
-license-file = "LICENSE"
 
 [dependencies]
 chrono = "0.2"

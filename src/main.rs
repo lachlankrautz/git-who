@@ -79,7 +79,7 @@ fn print_git_data(v: Vec<Branch>) {
 
     for branch in v {
         let padding_count = max - branch.user.len();
-        let padding: String = iter::repeat(" ").take(padding_count).collect();
+        let padding = iter::repeat(" ").take(padding_count).collect::<String>();
 
         println!("[{}] {}{} {}",
                  coloured_date(now, branch.date),
