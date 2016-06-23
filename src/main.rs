@@ -1,17 +1,30 @@
 extern crate chrono;
 extern crate colored;
+extern crate clap;
 
 use std::fmt;
 use std::process::Command;
 use std::str;
 use std::iter;
 use colored::Colorize;
-use chrono::datetime::DateTime;
-use chrono::Local;
-use chrono::FixedOffset;
+use chrono::{DateTime, Local, FixedOffset};
+use clap::{App, AppSettings, Arg};
 
 fn main() {
-    let mut v = get_git_data();
+    let matches = App::new("git-who")
+        .version("0.1.1")
+        .about("List remote branches by author and date of last commit")
+        .setting(AppSettings::ColoredHelp)
+        .arg(Arg::with_name("remote")
+            .help("Remote name [default: origin]")
+            .short("r")
+            .long("remote")
+            .takes_value(true)
+            .value_name("NAME"))
+        .get_matches();
+    let remote = matches.value_of("remote").unwrap_or("origin");
+
+    let mut v = get_git_data(remote);
     v.sort();
     print_git_data(v);
 }
@@ -102,11 +115,11 @@ fn coloured_date(now: DateTime<Local>, date: DateTime<FixedOffset>) -> String {
     }
 }
 
-fn get_git_data() -> Vec<Branch> {
+fn get_git_data(remote: &str) -> Vec<Branch> {
     let output = Command::new("git")
         .arg("for-each-ref")
         .arg("--format=%(authorname)^~^%(refname:short)^~^%(committerdate:rfc2822)")
-        .arg("refs/remotes/origin/")
+        .arg(format!("refs/remotes/{}/", remote))
         .output()
         .expect("failed to execute process");
     let git_output = str::from_utf8(&output.stdout).unwrap();
