@@ -11,7 +11,7 @@ use chrono::{DateTime, Local, FixedOffset};
 use clap::{App, AppSettings, Arg};
 
 fn main() {
-    let matches = App::new("git-who")
+    let args = App::new("git-who")
         .version("0.1.1")
         .about("List remote branches by author and date of last commit")
         .setting(AppSettings::ColoredHelp)
@@ -22,7 +22,7 @@ fn main() {
             .takes_value(true)
             .value_name("NAME"))
         .get_matches();
-    let remote = matches.value_of("remote").unwrap_or("origin");
+    let remote = args.value_of("remote").unwrap_or("origin");
 
     let mut v = get_git_data(remote);
     v.sort();
@@ -80,14 +80,7 @@ fn parse_repo(line: String) -> Option<Branch> {
 }
 
 fn print_git_data(v: Vec<Branch>) {
-    let max = v.iter().fold(0, |max, branch| {
-        let len = branch.user.len();
-        if len > max {
-            len
-        } else {
-            max
-        }
-    });
+    let max = v.iter().fold(0, |max, branch| std::cmp::max(max, branch.user.len()));
     let now = Local::now();
 
     for branch in v {
@@ -122,11 +115,9 @@ fn get_git_data(remote: &str) -> Vec<Branch> {
         .arg(format!("refs/remotes/{}/", remote))
         .output()
         .expect("failed to execute process");
-    let git_output = str::from_utf8(&output.stdout).unwrap();
-
-    let mut v: Vec<Branch> = Vec::new();
-    for line in git_output.lines() {
-        parse_repo(line.to_string()).map(|x| v.push(x));
-    }
-    v
+    str::from_utf8(&output.stdout)
+        .unwrap()
+        .lines()
+        .filter_map(|line| parse_repo(line.to_string()))
+        .collect::<Vec<Branch>>()
 }
