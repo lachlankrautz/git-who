@@ -1,6 +1,6 @@
 [package]
 name = "git-who"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Lachlan Krautz <lachlan.krautz@gmail.com>"]
 description = "List remote branches by author and date of last commit"
 homepage = "https://github.com/lachlankrautz/git-who"
