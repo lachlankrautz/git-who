@@ -57,7 +57,7 @@ impl fmt::Debug for Branch {
 }
 
 fn parse_repo(line: String) -> Option<Branch> {
-    if !line.contains("origin/HEAD") && !line.contains("origin/master") {
+    if !line.contains("origin/HEAD") {
         let mut user = String::new();
         let mut date = String::new();
         let mut branch = String::new();
