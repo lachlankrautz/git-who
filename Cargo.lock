@@ -1,6 +1,6 @@
 [root]
 name = "git-who"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono 0.2.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
