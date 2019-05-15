@@ -1,6 +1,6 @@
 [package]
 name = "git-who"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Lachlan Krautz <lachlan.krautz@gmail.com>"]
 description = "List remote branches by author and date of last commit"
 homepage = "https://github.com/lachlankrautz/git-who"
@@ -10,6 +10,6 @@ keywords = ["git", "remote", "branches", "team", "manage"]
 license = "MIT"
 
 [dependencies]
-chrono = "0.2"
-colored = "1.2"
-clap = "2"
+chrono = "0.4"
+colored = "1.8"
+clap = "2.33"

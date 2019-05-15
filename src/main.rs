@@ -12,7 +12,7 @@ use clap::{App, AppSettings, Arg};
 
 fn main() {
     let args = App::new("git-who")
-        .version("0.1.1")
+        .version("0.1.3")
         .about("List remote branches by author and date of last commit")
         .setting(AppSettings::ColoredHelp)
         .arg(Arg::with_name("remote")
@@ -70,8 +70,8 @@ fn parse_repo(line: String) -> Option<Branch> {
             }
         }
         Some(Branch {
-            user: user,
-            branch: branch,
+            user,
+            branch,
             date: DateTime::parse_from_rfc2822(&date).unwrap(),
         })
     } else {
@@ -83,7 +83,7 @@ fn print_git_data(v: Vec<Branch>) {
     let max = v.iter().fold(0, |max, branch| std::cmp::max(max, branch.user.len()));
     let now = Local::now();
 
-    for branch in v {
+    v.iter().for_each(|branch| {
         let padding_count = max - branch.user.len();
         let padding = iter::repeat(" ").take(padding_count).collect::<String>();
 
@@ -92,12 +92,12 @@ fn print_git_data(v: Vec<Branch>) {
                  branch.user,
                  padding,
                  branch.branch);
-    }
+    });
 }
 
 fn coloured_date(now: DateTime<Local>, date: DateTime<FixedOffset>) -> String {
     let str_date = date.format("%Y-%m-%d").to_string();
-    let diff = (now - date).num_days();
+    let diff = (now.with_timezone(&date.timezone()) - date).num_days();
 
     if diff >= 180 {
         str_date.red().to_string()
